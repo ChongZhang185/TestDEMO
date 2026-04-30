@@ -10,72 +10,54 @@ class DetailViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         
-        switch self.type {
+        guard let type = self.type else { return }
+        let hostingController = UIHostingController(rootView: createView(for: type))
+        addChildView(hostingController: hostingController)
+    }
+    
+    private func createView(for type: ChartType) -> some View {
+        switch type {
         case .DeviceState_Time:
-            let contentView: DeviceStatePointMarkView = DeviceStatePointMarkView(data: getDataList() as! [RowItem])
-            let hostingController = UIHostingController(rootView: contentView)
-            addChildView(hostingController: hostingController)
+            return AnyView(DeviceStatePointMarkView(data: getDataList() as! [RowItem]))
         case .RSRP_Time:
-            let contentView: RSRP_TimePointMarkView = RSRP_TimePointMarkView(data: getDataList() as! [RowItem2])
-            let hostingController = UIHostingController(rootView: contentView)
-            addChildView(hostingController: hostingController)
+            return AnyView(RSRP_TimePointMarkView(data: getDataList() as! [RowItem2]))
         case .TXPower_Time:
-            let contentView: TxPowerPointMarkView = TxPowerPointMarkView(data: getDataList() as! [RowItem3])
-            let hostingController = UIHostingController(rootView: contentView)
-            addChildView(hostingController: hostingController)
+            return AnyView(TxPowerPointMarkView(data: getDataList() as! [RowItem3]))
         case .Band_Time:
-            let contentView: Band_TimePointMarkView = Band_TimePointMarkView(data: getDataList() as! [RowItem4])
-            let hostingController = UIHostingController(rootView: contentView)
-            addChildView(hostingController: hostingController)
+            return AnyView(Band_TimePointMarkView(data: getDataList() as! [RowItem4]))
         case .UL_TPut_Time:
-            let contentView: UL_TPut_TimeView = UL_TPut_TimeView(data: getDataList() as! [RowItem5])
-            let hostingController = UIHostingController(rootView: contentView)
-            addChildView(hostingController: hostingController)
+            return AnyView(UL_TPut_TimeView(data: getDataList() as! [RowItem5]))
         case .DL_TPut_Time:
-            let contentView: DL_TPut_TimeView = DL_TPut_TimeView(data: getDataList() as! [RowItem5])
-            let hostingController = UIHostingController(rootView: contentView)
-            addChildView(hostingController: hostingController)
+            return AnyView(DL_TPut_TimeView(data: getDataList() as! [RowItem5]))
         case .Channel_Time:
-            let contentView: Channel_TimeView = Channel_TimeView(data: getDataList() as! [RowItem6])
-            let hostingController = UIHostingController(rootView: contentView)
-            addChildView(hostingController: hostingController)
+            return AnyView(Channel_TimeView(data: getDataList() as! [RowItem6]))
         default:
-            print("none")
+            return AnyView(EmptyView())
+        }
+    }
+    
+    private func createRowItem(index: Int, for type: ChartType, item: TelecomData) -> BaseRowItem {
+        switch type {
+        case .DeviceState_Time:
+            return RowItem(index: index, item: item)
+        case .RSRP_Time:
+            return RowItem2(index: index, item: item)
+        case .TXPower_Time:
+            return RowItem3(index: index, item: item)
+        case .Band_Time:
+            return RowItem4(index: index, item: item)
+        case .UL_TPut_Time, .DL_TPut_Time:
+            return RowItem5(index: index, item: item)
+        case .Channel_Time:
+            return RowItem6(index: index, item: item)
+        default:
+            return RowItem6(index: index, item: item)
         }
     }
     
     func getDataList() -> [BaseRowItem] {
-        var dataList: [BaseRowItem] = []
-        var indx = 0
-        for item in data {
-            indx = indx+1
-            // timeString: item.time, deviceState: item.deviceState
-            var rowItem : BaseRowItem
-
-            switch self.type {
-            case .DeviceState_Time:
-                rowItem = RowItem(index:indx, item: item)
-            case .RSRP_Time:
-                rowItem = RowItem2(index:indx, item: item)
-            case .TXPower_Time:
-                rowItem = RowItem3(index:indx, item: item)
-            case .Band_Time:
-                rowItem = RowItem4(index:indx, item: item)
-            case .UL_TPut_Time:
-                rowItem = RowItem5(index:indx, item: item)
-            case .DL_TPut_Time:
-                rowItem = RowItem5(index:indx, item: item)
-            case .Channel_Time:
-                rowItem = RowItem6(index:indx, item: item)
-            default:
-                print("none")
-                rowItem = RowItem6(index:indx, item: item)
-            }
-            
-            dataList.append(rowItem )
-        }
-        
-        return dataList
+        guard let type = self.type else { return [] }
+        return data.enumerated().map { createRowItem(index: $0.offset + 1, for: type, item: $0.element) }
     }
     
     func addChildView(hostingController: UIViewController) {
@@ -89,5 +71,4 @@ class DetailViewController: UIViewController {
             hostingController.view.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
-    
 }
