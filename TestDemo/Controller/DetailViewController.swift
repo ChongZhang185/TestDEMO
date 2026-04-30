@@ -15,7 +15,7 @@ class DetailViewController: UIViewController {
         addChildView(hostingController: hostingController)
     }
     
-    private func createView(for type: ChartType) -> some View {
+    func createView(for type: ChartType) -> some View {
         switch type {
         case .DeviceState_Time:
             return AnyView(DeviceStatePointMarkView(data: getDataList() as! [RowItem]))
@@ -36,7 +36,7 @@ class DetailViewController: UIViewController {
         }
     }
     
-    private func createRowItem(index: Int, for type: ChartType, item: TelecomData) -> BaseRowItem {
+    func createRowItem(index: Int, for type: ChartType, item: TelecomData) -> BaseRowItem {
         switch type {
         case .DeviceState_Time:
             return RowItem(index: index, item: item)
