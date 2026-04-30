@@ -12,83 +12,31 @@ class DetailViewController: UIViewController {
         
         switch self.type {
         case .DeviceState_Time:
-            var dataList: [RowItem] = []
-            var indx = 0
-            for item in data {
-                indx = indx+1
-                // timeString: item.time, deviceState: item.deviceState
-                let rowItem = RowItem(index:indx, item: item)
-                dataList.append(rowItem)
-            }
-            let contentView: DeviceStatePointMarkView = DeviceStatePointMarkView(data: dataList)
+            let contentView: DeviceStatePointMarkView = DeviceStatePointMarkView(data: getDataList() as! [RowItem])
             let hostingController = UIHostingController(rootView: contentView)
             addChildView(hostingController: hostingController)
         case .RSRP_Time:
-            var dataList: [RowItem2] = []
-            var indx = 0
-            for item in data {
-                indx = indx+1
-                let rowItem = RowItem2(index:indx, item: item)
-                dataList.append(rowItem)
-            }
-            let contentView: RSRP_TimePointMarkView = RSRP_TimePointMarkView(data: dataList)
+            let contentView: RSRP_TimePointMarkView = RSRP_TimePointMarkView(data: getDataList() as! [RowItem2])
             let hostingController = UIHostingController(rootView: contentView)
             addChildView(hostingController: hostingController)
-            
         case .TXPower_Time:
-            
-            var dataList: [RowItem3] = []
-            var indx = 0
-            for item in data {
-                indx = indx+1
-                let rowItem = RowItem3(index:indx, item: item)
-                dataList.append(rowItem)
-            }
-            let contentView: TxPowerPointMarkView = TxPowerPointMarkView(data: dataList)
+            let contentView: TxPowerPointMarkView = TxPowerPointMarkView(data: getDataList() as! [RowItem3])
             let hostingController = UIHostingController(rootView: contentView)
             addChildView(hostingController: hostingController)
         case .Band_Time:
-            var dataList: [RowItem4] = []
-            var indx = 0
-            for item in data {
-                indx = indx+1
-                let rowItem = RowItem4(index:indx, item: item)
-                dataList.append(rowItem)
-            }
-            let contentView: Band_TimePointMarkView = Band_TimePointMarkView(data: dataList)
+            let contentView: Band_TimePointMarkView = Band_TimePointMarkView(data: getDataList() as! [RowItem4])
             let hostingController = UIHostingController(rootView: contentView)
             addChildView(hostingController: hostingController)
         case .UL_TPut_Time:
-            var dataList: [RowItem5] = []
-            var indx = 0
-            for item in data {
-                indx = indx+1
-                let rowItem = RowItem5(index:indx, item: item)
-                dataList.append(rowItem)
-            }
-            let contentView: UL_TPut_TimeView = UL_TPut_TimeView(data: dataList)
+            let contentView: UL_TPut_TimeView = UL_TPut_TimeView(data: getDataList() as! [RowItem5])
             let hostingController = UIHostingController(rootView: contentView)
             addChildView(hostingController: hostingController)
         case .DL_TPut_Time:
-            var dataList: [RowItem5] = []
-            var indx = 0
-            for item in data {
-                indx = indx+1
-                let rowItem = RowItem5(index:indx, item: item)
-                dataList.append(rowItem)
-            }
-            let contentView: DL_TPut_TimeView = DL_TPut_TimeView(data: dataList)
+            let contentView: DL_TPut_TimeView = DL_TPut_TimeView(data: getDataList() as! [RowItem5])
             let hostingController = UIHostingController(rootView: contentView)
             addChildView(hostingController: hostingController)
         case .Channel_Time:
-            var dataList: [RowItem6] = []
-            var indx = 0
-            for item in data {
-                indx = indx+1
-                let rowItem = RowItem6(index:indx, item: item)
-                dataList.append(rowItem)
-            }
-            let contentView: Channel_TimeView = Channel_TimeView(data: dataList)
+            let contentView: Channel_TimeView = Channel_TimeView(data: getDataList() as! [RowItem6])
             let hostingController = UIHostingController(rootView: contentView)
             addChildView(hostingController: hostingController)
         default:
@@ -96,6 +44,39 @@ class DetailViewController: UIViewController {
         }
     }
     
+    func getDataList() -> [BaseRowItem] {
+        var dataList: [BaseRowItem] = []
+        var indx = 0
+        for item in data {
+            indx = indx+1
+            // timeString: item.time, deviceState: item.deviceState
+            var rowItem : BaseRowItem
+
+            switch self.type {
+            case .DeviceState_Time:
+                rowItem = RowItem(index:indx, item: item)
+            case .RSRP_Time:
+                rowItem = RowItem2(index:indx, item: item)
+            case .TXPower_Time:
+                rowItem = RowItem3(index:indx, item: item)
+            case .Band_Time:
+                rowItem = RowItem4(index:indx, item: item)
+            case .UL_TPut_Time:
+                rowItem = RowItem5(index:indx, item: item)
+            case .DL_TPut_Time:
+                rowItem = RowItem5(index:indx, item: item)
+            case .Channel_Time:
+                rowItem = RowItem6(index:indx, item: item)
+            default:
+                print("none")
+                rowItem = RowItem6(index:indx, item: item)
+            }
+            
+            dataList.append(rowItem )
+        }
+        
+        return dataList
+    }
     
     func addChildView(hostingController: UIViewController) {
         addChild(hostingController)
