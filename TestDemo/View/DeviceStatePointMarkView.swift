@@ -10,19 +10,52 @@ internal import SwiftUI
 
 struct DeviceStatePointMarkView: View {
     var data: [RowItem]
-    @State private var chartMode: String = "PointMark"
+    @State private var chartMode: String = "Point"
     
-    private var pdfData: [Int: Int] {
-        var counts = [Int: Int]()
+    private var pdfData: [(state: Int, probability: Double)] {
+        let total = Double(data.count)
+        guard total > 0 else { return [] }
+        
+        var counts: [Int: Int] = [:]
         for item in data {
-            let state = item.deviceState ?? 0
-            counts[state, default: 0] += 1
+            if let state = item.deviceState {
+                counts[state, default: 0] += 1
+            }
         }
-        return counts
+        
+        return (0...3).map { state in
+            let count = Double(counts[state] ?? 0)
+            return (state: state, probability: count / total)
+        }
     }
     
-    private var maxPDFCount: Int? {
-        pdfData.values.max()
+    private struct HistogramBin: Identifiable {
+        let id = UUID()
+        let range: String
+        let count: Int
+        let bin: Int
+    }
+    
+    private func createHistogramData() -> [HistogramBin] {
+        var counts: [Int: Int] = [:]
+        for item in data {
+            if let state = item.deviceState {
+                counts[state, default: 0] += 1
+            }
+        }
+        
+        return (0...3).map { state in
+            HistogramBin(range: "\(state)", count: counts[state] ?? 0, bin: state)
+        }
+    }
+    
+    private var cdfData: [(state: Int, cumulativeProbability: Double)] {
+        let pdf = pdfData
+        var cumulative: Double = 0
+        return pdf.map { item in
+            cumulative += item.probability
+            return (state: item.state, cumulativeProbability: cumulative)
+        }
     }
     
     var body: some View {
@@ -32,7 +65,7 @@ struct DeviceStatePointMarkView: View {
                     chartMode = "Point"
                 }
                 Button("Histogram") {
-                    chartMode = "BarMark"
+                    chartMode = "Histogram"
                 }
                 Button("PDF") {
                     chartMode = "PDF"
@@ -42,22 +75,63 @@ struct DeviceStatePointMarkView: View {
                 }
             }
             .padding()
-
+            
             ZStack {
-                Chart(data) { item in
-                    if chartMode == "BarMark" {
-                        BarMark (
-                            x: .value("Time", item.date!),
-                            y: .value("state", item.deviceState!)
+                if chartMode == "PDF" {
+                    Chart(pdfData, id: \.state) { item in
+                        BarMark(
+                            x: .value("State", item.state),
+                            y: .value("Probability", item.probability)
                         )
-                        .foregroundStyle(.red)
-                    } else if chartMode == "PDF" {
-                        BarMark (
-                            x: .value("State", item.deviceState!),
-                            y: .value("Count", pdfData[item.deviceState!] ?? 0)
+                        .foregroundStyle(.blue)
+                    }
+                    .chartXScale(domain: -0.5...3.5)
+                    .chartYScale(domain: 0...1)
+                    .chartXAxis {
+                        AxisMarks(values: [0, 1, 2, 3]) { value in
+                            AxisValueLabel {
+                                if let state = value.as(Int.self) {
+                                    Text("\(state)")
+                                }
+                            }
+                            AxisGridLine()
+                        }
+                    }
+                    .chartYAxis {
+                        AxisMarks(position: .leading)
+                    }
+                    .chartLegend(position: .top)
+                    .frame(width: 350, height: 400)
+                    .padding()
+                } else if chartMode == "CDF" {
+                    Chart(cdfData, id: \.state) { item in
+                        LineMark(
+                            x: .value("State", item.state),
+                            y: .value("Cumulative", item.cumulativeProbability)
                         )
-                        .foregroundStyle(.orange)
-                    } else {
+                        .foregroundStyle(.green)
+                        .symbol(by: .value("State", item.state))
+                    }
+                    .chartXScale(domain: -0.5...3.5)
+                    .chartYScale(domain: 0...1.1)
+                    .chartXAxis {
+                        AxisMarks(values: [0, 1, 2, 3]) { value in
+                            AxisValueLabel {
+                                if let state = value.as(Int.self) {
+                                    Text("\(state)")
+                                }
+                            }
+                            AxisGridLine()
+                        }
+                    }
+                    .chartYAxis {
+                        AxisMarks(position: .leading)
+                    }
+                    .chartLegend(position: .top)
+                    .frame(width: 350, height: 400)
+                    .padding()
+                } else if chartMode == "Point" {
+                    Chart(data) { item in
                         PointMark (
                             x: .value("Time", item.date!),
                             y: .value("state", item.deviceState!)
@@ -65,10 +139,8 @@ struct DeviceStatePointMarkView: View {
                         .symbol(by: .value("Family", item.date!))
                         .foregroundStyle(.red)
                     }
-                }
-                .chartYScale(domain: chartMode == "PDF" ? 0...1500 : 0...3)
-                .chartXAxis {
-                    if chartMode != "PDF" {
+                    .chartYScale(domain: 0...3)
+                    .chartXAxis {
                         AxisMarks(values: .stride(by: .minute, count:5)) { value in
                             if let date = value.as(Date.self) {
                                 AxisValueLabel {
@@ -81,31 +153,40 @@ struct DeviceStatePointMarkView: View {
                                 AxisTick()
                             }
                         }
-                    } else {
-                        AxisMarks { value in
-                            AxisGridLine()
-                            AxisTick()
-                            AxisValueLabel()
-                        }
                     }
-                 }
-                .chartLegend(position: .top)
-                .frame(width: 350, height: 400)
-                .padding()
-            }
-            
-            HStack {
-                
+                    .chartLegend(position: .top)
+                    .frame(width: 350, height: 400)
+                    .padding()
+} else if chartMode == "Histogram" {
+                    let histogramData = createHistogramData()
+                    Chart(histogramData, id: \.bin) { item in
+                        BarMark(
+                            x: .value("Range", item.range),
+                            y: .value("Count", item.count)
+                        )
+                        .foregroundStyle(.orange)
+                    }
+                    .chartXAxis {
+                        AxisMarks(position: .bottom)
+                    }
+                    .chartYAxis {
+                        AxisMarks(position: .leading)
+                    }
+                    .chartLegend(position: .top)
+                    .frame(width: 350, height: 400)
+                    .padding()
+                }
             }
         }
     }
 }
 
+
 #Preview {
-//    var dataList: [RowItem] = [
-//        RowItem(index: 1,timeString: "test3", deviceState: 1),
-//        RowItem(index: 2,timeString: "test1", deviceState: 2),
-//        RowItem(index: 3,timeString: "test2", deviceState: 3),
-//    ]
-//    DeviceStatePointMarkView(data: dataList)
+    //    var dataList: [RowItem] = [
+    //        RowItem(index: 1,timeString: "test3", deviceState: 1),
+    //        RowItem(index: 2,timeString: "test1", deviceState: 2),
+    //        RowItem(index: 3,timeString: "test2", deviceState: 3),
+    //    ]
+    //    DeviceStatePointMarkView(data: dataList)
 }
