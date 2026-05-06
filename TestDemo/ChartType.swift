@@ -9,4 +9,5 @@ enum ChartType: String {
     case DL_TPut_Time = "DL_TPut_Time"
     case Channel_Time = "Channel_Time"
     case Data_Filter = "Data_Filter"
+    case NONE = "NONE"
 }

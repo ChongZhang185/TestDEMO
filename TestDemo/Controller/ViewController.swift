@@ -3,7 +3,7 @@ import UIKit
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
     var tableView: UITableView!
-    var dataList: [ChartType] = [.DeviceState_Time, .RSRP_Time, .TXPower_Time, .Band_Time, .Channel_Time, .UL_TPut_Time, .DL_TPut_Time]
+    var dataList: [ChartType] = [.DeviceState_Time, .RSRP_Time, .TXPower_Time, .Band_Time, .Channel_Time, .UL_TPut_Time, .DL_TPut_Time, .NONE]
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -18,6 +18,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return dataList.count
     }
+
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 60
     }
@@ -30,10 +31,14 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let type = dataList[indexPath.row]
-        let detailVC = DetailViewController()
-        detailVC.type = type
-        self.navigationController?.pushViewController(detailVC, animated: true)
-
+        let type = dataList[indexPath.row] as ChartType
+        if type == .NONE {
+            let testVC = TestCombineViewController1()
+            self.navigationController?.pushViewController(testVC, animated: true)
+        } else {
+            let detailVC = DetailViewController()
+            detailVC.type = type
+            self.navigationController?.pushViewController(detailVC, animated: true)
+        }
     }
 }
