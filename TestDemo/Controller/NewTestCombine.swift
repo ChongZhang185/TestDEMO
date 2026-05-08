@@ -18,7 +18,6 @@ class NewTestCombine: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         addButton()
     }
     
@@ -37,7 +36,6 @@ class NewTestCombine: UIViewController {
             print("===========\(value)")
         }
 //        .store(in: &cancellables)
-        
         view.backgroundColor = .white
     }
     

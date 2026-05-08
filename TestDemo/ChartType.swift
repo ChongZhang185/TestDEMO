@@ -11,4 +11,5 @@ enum ChartType: String {
     case Data_Filter = "Data_Filter"
     case NONE = "NONE"
     case CombineTest = "CombineTest"
+    case CombineTest2 = "CombineTest2"
 }

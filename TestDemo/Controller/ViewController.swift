@@ -3,7 +3,7 @@ import UIKit
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
     var tableView: UITableView!
-    var dataList: [ChartType] = [.DeviceState_Time, .RSRP_Time, .TXPower_Time, .Band_Time, .Channel_Time, .UL_TPut_Time, .DL_TPut_Time, .NONE, .CombineTest]
+    var dataList: [ChartType] = [.DeviceState_Time, .RSRP_Time, .TXPower_Time, .Band_Time, .Channel_Time, .UL_TPut_Time, .DL_TPut_Time, .NONE, .CombineTest, .CombineTest2]
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,16 +32,20 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let type = dataList[indexPath.row] as ChartType
+        var testVC: UIViewController?
+
         if type == .NONE {
-            let testVC = TestCombineViewController1()
-            self.navigationController?.pushViewController(testVC, animated: true)
+            testVC = TestCombineViewController1()
         } else if type == .CombineTest {
-            let newVC = NewTestCombine()
-            self.navigationController?.pushViewController(newVC, animated: true)
+            testVC = NewTestCombine()
+        } else if type == .CombineTest2 {
+            testVC = NewTestCombineFuture()
         } else {
-            let detailVC = DetailViewController()
-            detailVC.type = type
-            self.navigationController?.pushViewController(detailVC, animated: true)
+            testVC = DetailViewController()
+            if let newVC = testVC as? DetailViewController {
+                newVC.type = type
+            }
         }
+        self.navigationController?.pushViewController(testVC!, animated: true)
     }
 }
