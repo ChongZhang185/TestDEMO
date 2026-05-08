@@ -13,11 +13,18 @@ class TestCombineViewController1: UIViewController {
     
     private var cancellables = Set<AnyCancellable>()
     private let searchTextSubject = PassthroughSubject<String, Never>()
+    let p = Person()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupCombineExample()
+
+        p.testGCD()
+        
+        
+        
+        
     }
     
     private func setupCombineExample() {
