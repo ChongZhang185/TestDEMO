@@ -3,7 +3,7 @@ import UIKit
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
     var tableView: UITableView!
-    var dataList: [ChartType] = [.DeviceState_Time, .RSRP_Time, .TXPower_Time, .Band_Time, .Channel_Time, .UL_TPut_Time, .DL_TPut_Time, .NONE]
+    var dataList: [ChartType] = [.DeviceState_Time, .RSRP_Time, .TXPower_Time, .Band_Time, .Channel_Time, .UL_TPut_Time, .DL_TPut_Time, .NONE, .CombineTest]
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,6 +35,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         if type == .NONE {
             let testVC = TestCombineViewController1()
             self.navigationController?.pushViewController(testVC, animated: true)
+        } else if type == .CombineTest {
+            let newVC = NewTestCombine()
+            self.navigationController?.pushViewController(newVC, animated: true)
         } else {
             let detailVC = DetailViewController()
             detailVC.type = type

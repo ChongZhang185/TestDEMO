@@ -19,12 +19,7 @@ class TestCombineViewController1: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupCombineExample()
-
         p.testGCD()
-        
-        
-        
-        
     }
     
     private func setupCombineExample() {

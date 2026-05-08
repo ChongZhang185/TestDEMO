@@ -26,6 +26,7 @@
     LuckMan *man = [[LuckMan alloc]init];
     [man eatWithFood:@"榴莲"];
     
+    
     dispatch_group_t group = dispatch_group_create();
     
     dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0) , ^{
